@@ -1,0 +1,83 @@
+# "org" ensures this Service is used with the correct Serverless Framework Access Key.
+org: jamshaidkhan
+# "service" is the name of this project. This will also be added to your AWS resource names.
+service: serverless-curd
+frameworkVersion: "4"
+
+provider:
+  name: aws
+  runtime: nodejs20.x
+  region: eu-north-1
+  environment:
+    TABLE_NAME: ${self:service}-${sls:stage}
+  iamRoleStatements:
+    - Effect: Allow
+      Action:
+        - dynamodb:Scan
+        - dynamodb:GetItem
+        - dynamodb:PutItem
+        - dynamodb:UpdateItem
+        - dynamodb:DeleteItem
+      Resource: arn:aws:dynamodb:eu-north-1:156997423681:table/${self:provider.environment.TABLE_NAME}
+
+functions:
+  createItems:
+    handler: handler.create
+    events:
+      - httpApi:
+          path: /create-item
+          method: post
+
+  getItems:
+    handler: handler.getAll
+    events:
+      - httpApi:
+          path: /getAll
+          method: get
+
+  getSingleItem:
+    handler: handler.getSingleItem
+    events:
+      - httpApi:
+          path: /get-singel-item/{id}
+          method: get
+
+  updateItem:
+    handler: handler.updateItem
+    events:
+      - http:
+          path: /update-item/{id}
+          method: put
+
+  deleteItem:
+    handler: handler.deleteItem
+    events:
+      - http:
+          path: /delete-item/{id}
+          method: delete
+
+resources:
+  Resources:
+    ItemsTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: ${self:provider.environment.TABLE_NAME}
+        AttributeDefinitions:
+          - AttributeName: id
+            AttributeType: S
+        KeySchema:
+          - AttributeName: id
+            KeyType: HASH
+        BillingMode: PAY_PER_REQUEST
+
+plugins:
+  - serverless-offline
+# package:
+#   include:
+#     - node_modules/aws-sdk/**
+#     - node_modules/dotenv/**
+#     - node_modules/uuid/**
+#   exclude:
+#     - node_modules/** # This would exclude node_modules, but typically you wouldn't do this
+#     - .git/** # Exclude the .git folder
+#     - .vscode/**

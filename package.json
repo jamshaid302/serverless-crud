@@ -1,0 +1,14 @@
+{
+  "type": "module",
+  "scripts": {
+    "start:offline": "npx serverless offline"
+  },
+  "dependencies": {
+    "aws-sdk": "^2.1677.0",
+    "dotenv": "^16.4.5",
+    "uuid": "^10.0.0"
+  },
+  "devDependencies": {
+    "serverless-offline": "^14.1.1"
+  }
+}
